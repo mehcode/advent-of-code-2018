@@ -11,3 +11,4 @@ authors = [
 [dependencies]
 failure = "0.1.3"
 itertools = "0.7.11"
+maplit = "1.0.1"

@@ -3,7 +3,7 @@
 
 use failure::Error;
 use itertools::{process_results, FoldWhile, Itertools};
-use std::collections::HashMap;
+use maplit::hashset;
 use std::fs;
 
 fn main() -> Result<(), Error> {
@@ -26,21 +26,18 @@ fn solve_day1_part1() -> Result<i32, Error> {
 // https://adventofcode.com/2018/day/1#part2
 fn solve_day1_part2() -> Result<i32, Error> {
     let input = fs::read_to_string("input/day-1")?;
-
-    let mut seen = HashMap::new();
-    seen.insert(0, 1);
+    let mut seen = hashset![0];
 
     Ok(process_results(
         input.lines().cycle().map(str::parse),
         |mut iter| {
             iter.fold_while(0, |frequency, shift: i32| {
                 let frequency = frequency + shift;
-                let cnt = *seen.entry(frequency).and_modify(|e| *e += 1).or_insert(1);
-
-                if cnt == 2 {
-                    FoldWhile::Done(frequency)
-                } else {
+                if seen.insert(frequency) {
                     FoldWhile::Continue(frequency)
+                } else {
+                    // computed frequency has been seen before
+                    FoldWhile::Done(frequency)
                 }
             })
             .into_inner()
